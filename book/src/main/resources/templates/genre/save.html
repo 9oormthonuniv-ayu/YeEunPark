@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title<!DOCTYPE html>
+  <html xmlns:th="http://www.thymeleaf.org">
+  <head><title>장르 등록</title></head>
+  <body>
+  <h2>장르 등록</h2>
+  <form th:action="@{/genres/save}" th:object="${genre}" method="post">
+    장르명: <input type="text" th:field="*{genreName}" /><br/>
+    설명: <input type="text" th:field="*{description}" /><br/>
+    <button type="submit">등록</button>
+  </form>
+  </body>
+  </html>
+  </title>
+</head>
+<body>
+
+</body>
+</html>

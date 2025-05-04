@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>저자 등록</title></head>
+<body>
+<h2>저자 등록</h2>
+<form th:action="@{/authors/save}" th:object="${author}" method="post">
+  이름: <input type="text" th:field="*{name}" /><br/>
+  국가: <input type="text" th:field="*{country}" /><br/>
+  <button type="submit">등록</button>
+</form>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>도서 수정</title>
+</head>
+<body>
+<h1>도서 수정</h1>
+
+<form th:action="@{/books/update}" th:object="${book}" method="post">
+    <input type="hidden" th:field="*{id}" />
+
+    제목: <input type="text" th:field="*{title}" required><br/>
+    ISBN: <input type="text" th:field="*{isbn}" required><br/>
+    출판사: <input type="text" th:field="*{publisher}" required><br/>
+    출판일: <input type="date" th:field="*{publishedAt}" required><br/>
+    재고 수량: <input type="number" th:field="*{stock}" required><br/>
+
+    저자:
+    <select name="authorId" required>
+        <option value="">-- 선택 --</option>
+        <option th:each="author : ${authors}"
+                th:value="${author.authorId}"
+                th:text="${author.name}"
+                th:selected="${author.authorId == book.author.authorId}"> </option>
+    </select><br/>
+
+    장르:
+    <select name="genreId" required>
+        <option value="">-- 선택 --</option>
+        <option th:each="genre : ${genres}"
+                th:value="${genre.genreId}"
+                th:text="${genre.genreName}"
+                th:selected="${genre.genreId == book.genre.genreId}"> </option>
+    </select><br/><br/>
+
+    <button type="submit">수정 완료</button>
+</form>
+
+<br>
+<a th:href="@{/books}">← 도서 목록</a>
+</body>
+</html>

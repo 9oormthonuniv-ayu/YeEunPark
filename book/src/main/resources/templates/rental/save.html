@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>도서 대여</title></head>
+<body>
+<h2>도서 대여</h2>
+<form th:action="@{/rentals/save}" method="post">
+  회원:
+  <select name="userId">
+    <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.name}"></option>
+  </select><br/>
+  도서:
+  <select name="bookId">
+    <option th:each="b : ${books}" th:value="${b.id}" th:text="${b.title}"></option>
+  </select><br/>
+  <button type="submit">대여하기</button>
+</form>
+</body>
+</html>

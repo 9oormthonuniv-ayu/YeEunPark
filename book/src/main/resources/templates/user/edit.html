@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>회원 수정</title></head>
+<body>
+<h2>회원 정보 수정</h2>
+
+<form th:action="@{/users/update}" th:object="${user}" method="post">
+  <input type="hidden" th:field="*{id}" />
+  이름: <input type="text" th:field="*{name}" /><br/>
+  이메일: <input type="email" th:field="*{email}" /><br/>
+  비밀번호: <input type="password" th:field="*{password}" /><br/>
+  전화번호: <input type="text" th:field="*{phone}" /><br/>
+  <input type="hidden" th:field="*{createdAt}" />
+  <button type="submit">수정</button>
+</form>
+
+<a th:href="@{/users}">← 목록으로</a>
+</body>
+</html>

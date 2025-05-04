@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>도서 대여 목록</title></head>
+<body>
+<h2>도서 대여 목록</h2>
+<a th:href="@{/rentals/save}">+ 대여 등록</a>
+<div style="margin-top: 10px;"></div>
+<table border="1">
+  <thead>
+  <tr>
+    <th>회원</th>
+    <th>도서</th>
+    <th>대여일</th>
+    <th>반납 예정일</th>
+    <th>반납일</th>
+    <th>반납</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="r : ${rentals}">
+    <td th:text="${r.user.name}"></td>
+    <td th:text="${r.book != null ? r.book.title : '삭제된 도서'}"></td>
+    <td th:text="${r.rentalDate}"></td>
+    <td th:text="${r.dueDate}"></td>
+    <td th:text="${r.returnDate} ?: '-'"></td>
+    <td>
+      <form th:action="@{|/rentals/${r.id}/return|}" method="post">
+        <button type="submit" th:if="${r.returnDate == null}">반납</button>
+        <span th:if="${r.returnDate != null}">완료</span>
+      </form>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<br>
+<a th:href="@{/}" style="font-weight: bold;">home</a>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>저자 목록</title></head>
+<body>
+<h2>저자 목록</h2>
+<a th:href="@{/authors/save}">+ 저자 등록</a>
+<div style="margin-top: 10px;"></div>
+<table border="1">
+  <tr>
+    <th>ID</th>
+    <th>이름</th>
+    <th>국가</th>
+  </tr>
+  <tr th:each="a : ${authors}">
+    <td th:text="${a.authorId}"></td>
+    <td th:text="${a.name}"></td>
+    <td th:text="${a.country}"></td>
+  </tr>
+</table>
+<br>
+<a th:href="@{/}" style="font-weight: bold;">home</a>
+</body>
+</html>
