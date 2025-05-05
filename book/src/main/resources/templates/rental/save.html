@@ -10,7 +10,7 @@
   </select><br/>
   도서:
   <select name="bookId">
-    <option th:each="b : ${books}" th:value="${b.id}" th:text="${b.title}"></option>
+    <option th:each="b : ${books}" th:value="${b.bookId}" th:text="${b.title}"></option>
   </select><br/>
   <button type="submit">대여하기</button>
 </form>

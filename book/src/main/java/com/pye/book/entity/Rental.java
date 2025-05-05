@@ -26,6 +26,7 @@ public class Rental {
     private User user;
 
     @ManyToOne
+    @JoinColumn(name = "book_id") // 이걸 명시!
     private Book book;
 }
 
