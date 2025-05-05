@@ -1,3 +1,7 @@
 # Default ignored files
 /shelf/
 /workspace.xml
+
+# IntelliJ 개인 설정
+.idea/workspace.xml
+*.iml
