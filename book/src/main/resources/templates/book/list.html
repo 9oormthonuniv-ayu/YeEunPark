@@ -25,8 +25,8 @@
     <td th:text="${book.publishedAt}"></td>
     <td th:text="${book.stock}"></td>
     <td>
-      <a th:href="@{'/books/' + ${book.id} + '/edit'}">수정</a> |
-      <a th:href="@{'/books/' + ${book.id} + '/delete'}"
+      <a th:href="@{'/books/' + ${book.bookId} + '/edit'}">수정</a> |
+      <a th:href="@{'/books/' + ${book.bookId} + '/delete'}"
          onclick="return confirm('정말 삭제하시겠습니까?');">삭제</a>
     </td>
   </tr>

@@ -12,6 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -95,6 +96,16 @@ public class BookController {
         book.setAuthor(author);
         book.setGenre(genre);
         bookRepository.save(book);
+        return "redirect:/books";
+    }
+
+    @GetMapping("/{id}/delete")
+    public String deleteBook(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            bookRepository.deleteById(id);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "삭제 실패: 대여 기록과 연결된 도서는 삭제할 수 없습니다.");
+        }
         return "redirect:/books";
     }
 }
