@@ -23,86 +23,64 @@ import java.util.Collections;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
-    //JWTUtil 주입
     private final JWTUtil jwtUtil;
 
     public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
-
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
     }
 
-    //AuthenticationManager Bean 등록
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-
         return configuration.getAuthenticationManager();
     }
 
-    //암호화
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
-
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
+        // CORS 설정
+        http.cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
+            @Override
+            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                CorsConfiguration configuration = new CorsConfiguration();
+                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                configuration.setAllowedMethods(Collections.singletonList("*"));
+                configuration.setAllowCredentials(true);
+                configuration.setAllowedHeaders(Collections.singletonList("*"));
+                configuration.setMaxAge(3600L);
+                configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+                return configuration;
+            }
+        }));
+
+        // 기본 보안 설정 끄기
         http
-                .cors((cors) -> cors
-                        .configurationSource(new CorsConfigurationSource() {
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable());
 
-                            @Override
-                            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+        // 인가 설정
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login", "/", "/join").permitAll()
+                .requestMatchers("/redis/**").permitAll() // ✅ Redis API는 인증 없이 허용
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+        );
 
-                                CorsConfiguration configuration = new CorsConfiguration();
-
-                                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                                configuration.setAllowedMethods(Collections.singletonList("*"));
-                                configuration.setAllowCredentials(true);
-                                configuration.setAllowedHeaders(Collections.singletonList("*"));
-                                configuration.setMaxAge(3600L);
-
-                                configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
-                                return configuration;
-                            }
-                }));
-
-        //csrf disable
+        // JWT 필터 등록
         http
-                .csrf((auth) -> auth.disable());
-
-        //From 로그인 방식 disable
-        http
-                .formLogin((auth) -> auth.disable());
-
-        //http basic 인증 방식 disable
-        http
-                .httpBasic((auth) -> auth.disable());
-
-        //경로별 인가 작업
-        http
-                .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/join").permitAll()
-                        .requestMatchers("/admin").hasRole("ADMIN")
-                        .anyRequest().authenticated());
-
-        //JWTFilter 등록
-        http
-                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
-
-        //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
-        http
+                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class)
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
-        //세션 설정
-        http
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        // 세션 사용 안 함 (JWT 사용하므로)
+        http.sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

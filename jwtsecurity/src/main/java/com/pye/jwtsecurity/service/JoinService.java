@@ -13,29 +13,30 @@ public class JoinService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public JoinService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
-
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     public void joinProcess(JoinDTO joinDTO) {
-
         String username = joinDTO.getUsername();
         String password = joinDTO.getPassword();
 
-        Boolean isExist = userRepository.existsByUsername(username);
-
-        if (isExist) {
-
-            return;
+        if (userRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
         }
 
-        UserEntity data = new UserEntity();
+        // 엔티티 생성
+        UserEntity user = new UserEntity();
+        user.setUsername(username);
+        user.setPassword(bCryptPasswordEncoder.encode(password));
 
-        data.setUsername(username);
-        data.setPassword(bCryptPasswordEncoder.encode(password));
-        data.setRole("ROLE_ADMIN");
+        // 기본 권한은 USER, 특별히 admin이면 ADMIN
+        if (username.equalsIgnoreCase("admin")) {
+            user.setRole("ROLE_ADMIN");
+        } else {
+            user.setRole("ROLE_USER");
+        }
 
-        userRepository.save(data);
+        userRepository.save(user);
     }
 }

@@ -2,6 +2,7 @@ package com.pye.jwtsecurity.jwt;
 
 import com.pye.jwtsecurity.dto.CustomUserDetails;
 import com.pye.jwtsecurity.entity.UserEntity;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,57 +19,58 @@ public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
 
     public JWTFilter(JWTUtil jwtUtil) {
-
         this.jwtUtil = jwtUtil;
     }
 
-
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-        //request에서 Authorization 헤더를 찾음
-        String authorization= request.getHeader("Authorization");
+        String uri = request.getRequestURI();
 
-        //Authorization 헤더 검증
+        // 인증이 필요 없는 경로는 바로 통과
+        if (uri.startsWith("/login") || uri.startsWith("/join") || uri.startsWith("/redis")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String authorization = request.getHeader("Authorization");
+
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-
             System.out.println("token null");
             filterChain.doFilter(request, response);
-
-            //조건이 해당되면 메소드 종료 (필수)
             return;
         }
 
         System.out.println("authorization now");
-        //Bearer 부분 제거 후 순수 토큰만 획득
+
         String token = authorization.split(" ")[1];
 
-        //토큰 소멸 시간 검증
-        if (jwtUtil.isExpired(token)) {
-
-            System.out.println("token expired");
-            filterChain.doFilter(request, response);
-
-            //조건이 해당되면 메소드 종료 (필수)
+        try {
+            if (jwtUtil.isExpired(token)) {
+                System.out.println("token expired");
+                filterChain.doFilter(request, response);
+                return;
+            }
+        } catch (ExpiredJwtException e) {
+            System.out.println("JWT 만료됨");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
             return;
         }
 
-        //토큰에서 username과 role 획득
         String username = jwtUtil.getUsername(token);
-        String role = jwtUtil.getRole(token);
+        String role = jwtUtil.getRole(token); // "ADMIN"
 
-        //userEntity를 생성하여 값 set
         UserEntity userEntity = new UserEntity();
         userEntity.setUsername(username);
         userEntity.setPassword("temppassword");
-        userEntity.setRole(role);
+        userEntity.setRole("ROLE_" + role); // ✅ "ROLE_ADMIN"
 
-        //UserDetails에 회원 정보 객체 담기
         CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
 
-        //스프링 시큐리티 인증 토큰 생성
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
-        //세션에 사용자 등록
+        Authentication authToken = new UsernamePasswordAuthenticationToken(
+                customUserDetails, null, customUserDetails.getAuthorities());
+
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         filterChain.doFilter(request, response);
