@@ -17,4 +17,4 @@
 ### 3rd 과제_JWT 인증 및 인가 모듈
 
 - [jwtsecurity/](jwtsecurity/)
-- Spring Boot + Spring Security 기반의 JWT 인증 및 인가 기능을 구현한 웹 애플리케이션
+- Spring Boot + Spring Security 기반의 JWT 인증 및 인가 기능을 구현한 웹 애플리케이션 (Redis 연동 포함)
